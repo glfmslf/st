@@ -21,7 +21,25 @@ public class ExcelUtil {
 //        couponLibraryRollbackSql();
 //        getProductId();
 //        getTranslationSql();
-        getTranslationSqlTest();
+//        getCouponDisSqlTest();
+        getDySql();
+    }
+
+    public static void getDySql() {
+        DyLister dyLister = new DyLister();
+        EasyExcel.read("/Users/yuyou/Desktop/工作簿1.xlsx", DyDisDto.class, dyLister).sheet().doRead();
+        for (DyDisDto dyDisDto : dyLister.getProductDtos()) {
+            System.out.println("update tb_coupon_consumption_record set retry_times = 1,created_at = now(),trade_time = '' where id = " + dyDisDto.getId() + " and source_outer_id = '" + dyDisDto.getOuterId() +  "';");
+        }
+    }
+
+    public static void getCouponDisSqlTest() {
+        CouponDisLister translationLister = new CouponDisLister();
+        EasyExcel.read("/Users/yuyou/Downloads/无标题.xls", CouponDisDto.class, translationLister).sheet().doRead();
+        for (CouponDisDto couponDisDto:translationLister.getProductDtos()) {
+            System.out.println("update coupon_librarys set sale_amount = \'" + couponDisDto.getSaleAmount() + "\' where coupon_grands_id = " +
+                    couponDisDto.getId() + ";");
+        }
     }
 
     public static void getTranslationSqlTest() throws IOException {
