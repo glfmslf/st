@@ -12,7 +12,7 @@ public class InsertionMain {
         BaseMain.printSortResult(a);
     }
 
-    private static void sort(int[] array) {
+    public static void sort(int[] array) {
         int n = array.length;
         if (n <= 1) {
             return;

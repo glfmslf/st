@@ -13,7 +13,7 @@ public class BubbleMain {
         BaseMain.printSortResult(array);
     }
 
-    private static void bubble(int[] a) {
+    public static void bubble(int[] a) {
         int n = a.length;
         for (int i = 0; i < n; i++) {
             boolean flag = false;
