@@ -1,14 +1,15 @@
 package com.yy.st.sort;
 
 /**
+ * 选择排序
  * @author yuyou
  * @since 2023/2/1 15:42
  */
-public class SelectorMain {
+public class SelectionSortMain {
     public static void main(String[] args) {
         int[] a = {11, 5, 8, 66, 0, 3, 2, 7, 6};
         sort(a);
-        BaseMain.printSortResult(a);
+        BaseSortMain.printSortResult(a);
     }
 
 

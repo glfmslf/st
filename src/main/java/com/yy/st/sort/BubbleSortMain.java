@@ -5,12 +5,12 @@ package com.yy.st.sort;
  * @author yuyou
  * @since 2023/1/31 17:46
  */
-public class BubbleMain {
+public class BubbleSortMain {
     public static void main(String[] args) {
 
         int[] array = {9, 4, 3, 2, 9, 7, 1, 0, 5};
         bubble(array);
-        BaseMain.printSortResult(array);
+        BaseSortMain.printSortResult(array);
     }
 
     public static void bubble(int[] a) {

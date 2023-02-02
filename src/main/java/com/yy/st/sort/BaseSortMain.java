@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
  * @author yuyou
  * @since 2023/2/1 14:12
  */
-public class BaseMain {
+public class BaseSortMain {
 
     public static void printSortResult(int[] a) {
         System.out.println("排序结果");
@@ -34,14 +34,14 @@ public class BaseMain {
         long current = System.currentTimeMillis();
         for (int i = 0; i < n; i++) {
             int[] b = a[i];
-            BubbleMain.bubble(b);
+            BubbleSortMain.bubble(b);
         }
         System.out.println("冒泡排序耗时 coast = " + (System.currentTimeMillis() - current) + "  " + LocalDateTime.now());
 
         long current2 = System.currentTimeMillis();
         for (int i = 0; i < n; i++) {
             int[] b  =in[i];
-            InsertionMain.sort(b);
+            InsertionSortMain.sort(b);
         }
         System.out.println("插入排序耗时 coast = " + (System.currentTimeMillis() - current2) + "  " + LocalDateTime.now());
         System.out.println("总耗时 coast = " + (System.currentTimeMillis() - cu) + "  " + LocalDateTime.now());

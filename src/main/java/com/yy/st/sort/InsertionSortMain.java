@@ -1,15 +1,16 @@
 package com.yy.st.sort;
 
 /**
+ * 插入排序
  * @author yuyou
  * @since 2023/2/1 14:03
  */
-public class InsertionMain {
+public class InsertionSortMain {
 
     public static void main(String[] args) {
         int[] a = {5, 4, 3, 2, 8, 9, 6, 1, 0};
         sort(a);
-        BaseMain.printSortResult(a);
+        BaseSortMain.printSortResult(a);
     }
 
     public static void sort(int[] array) {
