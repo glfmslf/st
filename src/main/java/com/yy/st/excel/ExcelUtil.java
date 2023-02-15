@@ -3,6 +3,8 @@ package com.yy.st.excel;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.yy.st.excel.doudian.ConsumptionDto;
+import com.yy.st.excel.doudian.ConsumptionLister;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,7 +24,63 @@ public class ExcelUtil {
 //        getProductId();
 //        getTranslationSql();
 //        getCouponDisSqlTest();
-        getDySql();
+//        getConsumption();
+        getLiveConsumption();
+        getConsumption();
+    }
+
+    public static void getConsumption() {
+        ConsumptionLister consumptionLister = new ConsumptionLister();
+        EasyExcel.read("/Users/yuyou/Desktop/doudian.xlsx", ConsumptionDto.class, consumptionLister).sheet().doRead();
+        for (ConsumptionDto consumptionDto : consumptionLister.getConsumptionDtos()) {
+            String s = "insert into" +
+                    "  tb_coupon_consumption_record (" +
+                    "trade_no," +
+                    "source_order_no," +
+                    "source_outer_id," +
+                    "coupon_library_no," +
+                    "order_channel," +
+                    "state," +
+                    "trade_time," +
+                    "cancel_state," +
+                    "cancel_time_stamp," +
+                    "retry_times" +
+                    ")" +
+                    "values" +
+                    "  (\'" + consumptionDto.getTradeNo() + "\',\'" + consumptionDto.getOrderNo() + "\',\'" + consumptionDto.getOuterId() + "\',\'" +
+                    consumptionDto.getCouponLibraryNo() + "\',3,0,\'" + consumptionDto.getUsedAt() + "\',0,0,0);";
+            System.out.println(s);
+
+        }
+
+    }
+
+    public static void getLiveConsumption() {
+        ConsumptionLister consumptionLister = new ConsumptionLister();
+        EasyExcel.read("/Users/yuyou/Desktop/live.xlsx", ConsumptionDto.class, consumptionLister).sheet().doRead();
+        for (ConsumptionDto consumptionDto : consumptionLister.getConsumptionDtos()) {
+            String s = "insert into" +
+                    "  tb_coupon_consumption_record (" +
+                    "trade_no," +
+                    "out_trade_no," +
+                    "source_order_no," +
+                    "source_outer_id," +
+                    "coupon_library_no," +
+                    "order_channel," +
+                    "state," +
+                    "trade_time," +
+                    "cancel_state," +
+                    "cancel_time_stamp," +
+                    "retry_times" +
+                    ")" +
+                    "values" +
+                    "  (\'" + consumptionDto.getTradeNo() + "\',\'" + consumptionDto.getTradeNo() + "\',\'" + consumptionDto.getOrderNo() + "\',\'" + consumptionDto.getOuterId() +
+                    "\',\'" +
+                    consumptionDto.getCouponLibraryNo() + "\',2,0,\'" + consumptionDto.getUsedAt() + "\',0,0,0);";
+            System.out.println(s);
+
+        }
+
     }
 
     public static void getDySql() {

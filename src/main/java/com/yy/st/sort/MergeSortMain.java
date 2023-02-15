@@ -7,18 +7,25 @@ package com.yy.st.sort;
  */
 public class MergeSortMain {
 
+    public static void main(String[] args) {
+        int[] a = {3, 5, 6, 2, 4, 0, 9, 1, 5, 6, 7};
+        int[] result = merge(a,0,a.length - 1);
+        BaseSortMain.printSortResult(result);
 
-    public static void merge(int[] a, int left, int right) {
+    }
+
+
+    public static int[] merge(int[] a, int left, int right) {
         if (left >= right) {
-            return;
+            return new int[]{a[left]};
         }
         int middle = (right - left) / 2 + left;
         merge(a, left, middle);
         merge(a, middle + 1, right);
-
+        return mergeData(a, left, right, middle);
     }
 
-    public static void mergeData(int[] a, int[] p, int[] q, int left, int right, int middle) {
+    public static int[] mergeData(int[] a, int left, int right, int middle) {
         int l = left;
         int r = right;
         int m = middle + 1;
@@ -42,5 +49,6 @@ public class MergeSortMain {
                 result[k++] = a[i];
             }
         }
+        return result;
     }
 }
