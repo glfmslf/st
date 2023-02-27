@@ -25,8 +25,22 @@ public class ExcelUtil {
 //        getTranslationSql();
 //        getCouponDisSqlTest();
 //        getConsumption();
-        getLiveConsumption();
-        getConsumption();
+//        getLiveConsumption();
+//        getConsumption();
+        getCouponSql();
+    }
+
+    public static void getCouponSql() throws IOException {
+        CouponNoLister dyLister = new CouponNoLister();
+        EasyExcel.read("/Users/yuyou/Desktop/couponNo.xlsx", CouponNoDto.class, dyLister).sheet().doRead();
+        FileWriter fileWriter = new FileWriter("/Users/yuyou/Desktop/result.txt");
+        for (CouponNoDto dyDisDto : dyLister.getProductDtos()) {
+            String s = "update coupon_librarys set sale_amount = \'" + dyDisDto.getSaleAmount() + "\' where code_id = \'" +
+                    dyDisDto.getNo() + "\';\n";
+            System.out.print(s);
+            fileWriter.write(s);
+        }
+        fileWriter.flush();
     }
 
     public static void getConsumption() {
@@ -82,6 +96,8 @@ public class ExcelUtil {
         }
 
     }
+
+
 
     public static void getDySql() {
         DyLister dyLister = new DyLister();
