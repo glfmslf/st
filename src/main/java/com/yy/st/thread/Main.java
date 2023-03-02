@@ -18,7 +18,6 @@ public class Main {
 
             CountTest countTest = new CountTest();
             CountDownLatch countDownLatch = new CountDownLatch(2);
-            countDownLatch.countDown();
             for (int j = 0; j < 2; j++) {
                 new Thread(() -> {
                     countTest.cal();
