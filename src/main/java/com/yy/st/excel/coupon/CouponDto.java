@@ -11,8 +11,17 @@ import lombok.Data;
 public class CouponDto {
 
 
+    @ExcelProperty(index = 0)
+    private String id;
+    @ExcelProperty(index = 1)
+    private String orderNo;
     @ExcelProperty(index = 2)
-    private String skuNo;
+    private String usedAt;
+
+    @ExcelProperty(index = 3)
+    private String orderId;
+
+
 
 
 }

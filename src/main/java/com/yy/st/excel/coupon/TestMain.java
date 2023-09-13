@@ -13,17 +13,14 @@ public class TestMain {
     public static int[] couponIds = {11002, 11003, 11004, 11005, 11006, 11008, 11009};
     public static void main(String[] args) throws IOException {
         CouponLister couponLister = new CouponLister();
-        EasyExcel.read("/Users/yuyou/Downloads/520券-可用商品范围.xlsx", CouponDto.class, couponLister).sheet().doRead();
+        EasyExcel.read("/Users/yuyou/Desktop/coupon_r.xlsx", CouponDto.class, couponLister).sheet().doRead();
         FileWriter fileWriter = new FileWriter("/Users/yuyou/Desktop/result.txt");
-        for (int couponId : couponIds) {
-            for (CouponDto couponDto : couponLister.getCouponDtos()) {
-                if ("32000021".equals(couponDto.getSkuNo())) {
-                    continue;
-                }
-                String s = "insert into coupon_products (coupon_id,sku_no) values(" + couponId + ",'" + couponDto.getSkuNo() + "');\n";
-                System.out.print(s);
-                fileWriter.write(s );
-            }
+        for (CouponDto couponDto : couponLister.getCouponDtos()) {
+
+            String s = "update coupon_librarys set status = 2,order_no =  '" + couponDto.getOrderNo() + "',order_id = " + couponDto.getOrderId() +
+                    ",used_at = '" + couponDto.getUsedAt() + "' where id = " + couponDto.getId() + ";";
+            System.out.println(s);
+
         }
         fileWriter.flush();
     }

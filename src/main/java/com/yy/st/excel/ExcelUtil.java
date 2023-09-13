@@ -25,9 +25,10 @@ public class ExcelUtil {
 //        getTranslationSql();
 //        getCouponDisSqlTest();
 //        getConsumption();
-//        getLiveConsumption();
+        getLiveConsumption();
 //        getConsumption();
-        getCouponSql();
+//        getCouponSql();
+
     }
 
     public static void getCouponSql() throws IOException {
@@ -71,7 +72,7 @@ public class ExcelUtil {
 
     public static void getLiveConsumption() {
         ConsumptionLister consumptionLister = new ConsumptionLister();
-        EasyExcel.read("/Users/yuyou/Desktop/live.xlsx", ConsumptionDto.class, consumptionLister).sheet().doRead();
+        EasyExcel.read("/Users/yuyou/Desktop/live1.xlsx", ConsumptionDto.class, consumptionLister).sheet().doRead();
         for (ConsumptionDto consumptionDto : consumptionLister.getConsumptionDtos()) {
             String s = "insert into" +
                     "  tb_coupon_consumption_record (" +

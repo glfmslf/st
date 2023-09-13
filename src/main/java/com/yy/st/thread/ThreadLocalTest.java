@@ -15,23 +15,26 @@ public class ThreadLocalTest {
             t1.set("t11");
             t2.set("t12");
             try {
-                Thread.sleep(100000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            System.out.println("thread t1 = " + t1.get());
+            System.out.println("thread t2 = " + t2.get());
         });
         thread2 = new Thread(() -> {
             t1.set("t21");
             t2.set("t22");
             try {
-                Thread.sleep(100000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            System.out.println("thread2 t1 = " + t1.get());
+            System.out.println("thread2 t2 = " + t2.get());
+
         });
         System.out.println(thread1.getThreadGroup());
-        thread1.wait();
-        thread2.wait();
 
         thread1.start();
         thread2.start();
@@ -39,5 +42,8 @@ public class ThreadLocalTest {
         thread2.join();
         System.out.println(thread1);
         System.out.println(thread2);
+        System.out.println(t1.get());
+        System.out.println(t2.get());
+
     }
 }

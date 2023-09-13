@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * 优惠券模版缓存刷新
  * @author yuyou
  * @since 2023/6/5 17:32
  */
@@ -24,7 +25,7 @@ public class ExcelMain {
         System.out.println(map);
 
         CouponCatLister couponCatLister = new CouponCatLister();
-        EasyExcel.read("/Users/yuyou/Downloads/0606-星球会员劵模板分类调整事项.xlsx", CouponCatDto.class, couponCatLister).sheet().doRead();
+        EasyExcel.read("/Users/yuyou/Downloads/0831-星球会员劵模板分类调整事项(1).xlsx", CouponCatDto.class, couponCatLister).sheet().doRead();
         FileWriter fileWriter = new FileWriter("/Users/yuyou/Desktop/result.txt");
         for (CouponCatDto couponCatDto : couponCatLister.getCouponCatDtos()) {
             String categoryIds = couponCatDto.getCategoryIds();
