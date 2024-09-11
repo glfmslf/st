@@ -17,7 +17,7 @@ public class UserDto {
     private String cardId;
     @ExcelProperty(index = 2)
     private Integer userId;
-    @ExcelProperty(index = 3)
-    private String channel;
+    // @ExcelProperty(index = 3)
+    // private String channel;
 
 }

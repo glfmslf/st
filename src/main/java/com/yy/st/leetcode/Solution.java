@@ -2,11 +2,30 @@ package com.yy.st.leetcode;
 
 public class Solution {
     public static void main(String[] args) {
-        int[] result = successfulPairs(new int[]{3, 1, 2}, new int[]{8,5,8}, 16);
-        for (int i : result) {
-            System.out.println(i);
+        // int[] result = successfulPairs(new int[]{3, 1, 2}, new int[]{8,5,8}, 16);
+        // for (int i : result) {
+        //     System.out.println(i);
+        //
+        // }
+        DFSLEETCODE.TreeNode treeNode1 = new DFSLEETCODE.TreeNode();
+        treeNode1.val = 2;
+        treeNode1.left = null;
+        treeNode1.right = null;
+        DFSLEETCODE dfsleetcode = new DFSLEETCODE();
+        DFSLEETCODE.TreeNode treeNode = new DFSLEETCODE.TreeNode();
+        treeNode.val = 1;
+        treeNode.left = treeNode1;
+        treeNode.right = null;
 
-        }
+
+        dfsleetcode.smallestFromLeaf(treeNode);
+        // StringBuilder stringBuilder = new StringBuilder();
+        // stringBuilder.append("a");
+        // stringBuilder.append("b");
+        // stringBuilder.append("c");
+        // System.out.println(stringBuilder);
+        // System.out.println(stringBuilder.deleteCharAt(stringBuilder.length() - 1));
+
     }
     public static int[] successfulPairs(int[] spells, int[] potions, long success) {
        // 对potions排序

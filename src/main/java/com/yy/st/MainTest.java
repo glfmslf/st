@@ -1,9 +1,10 @@
 package com.yy.st;
 
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.lang.Console;
+import java.text.MessageFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author yuyou
@@ -11,12 +12,26 @@ import java.util.UUID;
  */
 public class MainTest {
     public static void main(String[] args) {
-        System.out.println(Convert.digitToChinese(-11145.6111));
-        System.out.println(Math.round(111.11 * 100.0));
-        System.out.println(UUID.randomUUID());
-        System.out.println(cn.hutool.core.lang.UUID.randomUUID());
-        System.out.println(cn.hutool.core.lang.UUID.fastUUID());
-        Console.log("1111111");
+        String s = "coupon:package:purchase:incr:record:{userMainId}:{orderNo}";
+        System.out.println(String.format(s, 2222, "3333"));
+        MessageFormat messageFormat = new MessageFormat(s);
+        Object[] objects = new Object[]{2222, "33333"};
+        System.out.println(messageFormat.format(objects).toString());
+    }
+
+    private static boolean isCouponNameChartest(String[] strings,String couponRegex) {
+        if(StringUtils.isEmpty(couponRegex)){
+            return true;
+        }
+        Pattern p = Pattern.compile(couponRegex);
+        for(String str : strings){
+            Matcher matcher = p.matcher(str);
+            boolean b = matcher.find();
+            if(b){
+                return true;
+            }
+        }
+        return false;
     }
 
 }
