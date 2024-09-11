@@ -1,0 +1,185 @@
+@startuml
+title 会场页
+group 主人态会场页
+actor   用户 as  user order 1
+participant  小程序  as  client order 20
+participant cos order 23
+participant "base-gateway-vip" as bgv order 25
+participant "service-activities" as sa order 30
+participant "manager-receive-coupon" as mrc order 40
+participant  "center-receive-coupon"  as  crc order 50
+participant "manager-coupon" as mc order 53
+participant "manager-member" as mm order 55
+participant redis order 70
+activate user
+user -> client:进入主会场
+activate client
+client -> bgv: 进入主会场
+activate bgv
+bgv -> sa:进入主会场
+activate sa
+sa -> mrc:查询主会场
+activate mrc
+mrc -> mrc:查询本地缓存
+activate redis
+mrc -> redis:本地缓存无数据降级到远程缓存
+redis --> mrc:返回会场缓存并更新本地缓存
+
+note right
+异步刷新redis缓存
+end note
+deactivate redis
+deactivate localcache
+mrc -> mrc:校验会场是否启用
+mrc --> sa:会场未启用返回失效
+mrc -> mrc:循环遍历子会场
+group 裂变组件
+mrc -> mm:校验展示人群
+activate mm
+mm --> mrc: 返回
+deactivate mm
+mrc --> sa:不在展示人群中返回失败
+
+mrc -> mrc:校验组件时间
+mrc -> mrc:校验助力人数
+mrc -> mrc:校验邀请奖励库存
+note right
+组件状态逻辑
+end note
+end
+mrc -> mc:查询邀请奖励信息
+activate mc
+mc --> mrc:返回邀请奖励信息
+deactivate mc
+mrc --> sa:返回子会场cos地址&动态数据
+sa --> client:返回子会场cos地址&动态数据
+client -> cos:cos拉取子会场静态数据
+cos --> client:返回子会场静态数据
+client --> user:渲染页面
+end
+
+group 客人态会场页
+group 分享
+user -> user:邀请人分享带有用户\ntoken&子会场no的链接
+end
+user -> client:受邀人点击分享链接或扫码
+client -> bgv:进入会场页
+bgv -> sa:进入会场页
+sa -> mrc:查询主会场
+mrc -> localcache:查询主会场信息
+activate localcache
+localcache --> mrc:返回会场信息
+localcache -> redis:本地缓存没数据降级到远程缓存
+activate redis
+redis --> localcache:返回会场信息并刷新本地缓存
+deactivate redis
+deactivate localcache
+mrc -> mrc:校验url token有效性\n解析分享用户id
+mrc -> mm:查询邀请者
+activate mm
+mm --> mrc:返回用户信息
+deactivate mm
+group 主人态
+mrc -> mrc:分享人是自己\n主人态逻辑
+end
+
+mrc -> mrc:校验组件时间
+mrc -> mrc:校验发起人奖励库存
+mrc --> sa: 已过组件时间或发起人无奖励返回失效
+mrc -> mrc:是否已助力过
+mrc --> sa:已助力过触发助力弹窗阻断
+mrc -> mrc:校验助力人奖励库存
+mrc -> mrc:校验指路人奖励状态
+mrc --> sa:返回客人态助力弹窗&静态数据cos地址
+sa --> client:返回客人态助力弹窗&静态数据cos地址
+client -> cos:cos拉群会场静态数据
+cos --> client:返回子会场静态数据
+client --> user:渲染页面
+end
+@enduml
+
+@startuml
+title 客人态奖励发放
+actor   用户 as  user order 1
+participant 小程序 as client order 10
+participant "base-gateway-vip" as bgv order 25
+participant "service-activities" as sa order 30
+participant "manager-receive-coupon" as mrc order 40
+participant  "center-receive-coupon"  as  crc order 50
+participant "processor-pms" as pp order 35
+participant "manager-coupon" as mc order 53
+participant "manager-member" as mm order 55
+participant localcache order 60
+participant redis order 70
+participant mysql order 100
+group 助力人发放奖励
+activate user
+user -> client:点击助力
+activate client
+client -> bgv:助力请求
+activate bgv
+bgv -> client: 用户未登录拉起登录
+bgv -> sa:助力请求
+activate sa
+sa -> mrc:助力请求
+activate mrc
+mrc -> localcache:查询子会场信息
+activate localcache
+localcache --> mrc:返回会场信息
+localcache -> redis:本地缓存没数据降级到远程缓存
+activate redis
+redis --> localcache:返回并刷新会场信息
+deactivate redis
+deactivate localcache
+mrc -> mrc:校验会场启用状态
+mrc --> sa:会场未启用返回失效
+mrc -> mrc:校验组件时间
+mrc --> sa:已过组件时间返回失效态
+mrc -> mrc:校验邀请人是否已达助力上线
+mrc --> sa:已达助力上限返回失效态
+mrc -> mrc:校验地区限制
+mrc-->sa:不在地区限制内返回非限领地区阻断
+mrc -> mc:查询券模板
+activate mc
+mc --> mrc:校验券模板状态
+deactivate mc
+mrc --> sa:券模板状态不可领返回失效态
+mrc -> mrc:校验是否已助力
+mrc --> sa:已达助力上限返回
+mrc -> redis:扣减库存
+activate redis
+redis --> mrc:扣减结果
+deactivate redis
+mrc --> sa:扣减失败返回
+mrc -> crc:保存助力记录
+crc --> mrc:保存结果
+mrc ->redis:redis记录发券流水&记录流水号集合&邀请人助力次数+1
+redis --> mrc:结果
+mrc -> pp:kafka发券消息
+deactivate mrc
+end
+group 发券流程
+activate pp
+pp -> pp:处理消息
+pp -> pp:db限速
+pp -> mrc:业务处理
+activate mrc
+mrc -> redis:流水缓存查询
+activate redis
+redis --> mrc:返回流水
+deactivate redis
+mrc -> crc:发券流水落库
+activate crc
+crc -> mysql:发券流水落库
+mysql --> crc:结果
+crc -->mrc:结果
+mrc -> mc:发券
+activate mc
+mc --> mrc:发券结果
+deactivate mc
+
+end
+
+
+
+@enduml
