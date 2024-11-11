@@ -4,7 +4,7 @@ group 主人态会场页
 actor   用户 as  user order 1
 participant  小程序  as  client order 20
 participant cos order 23
-participant "base-gateway-vip" as bgv order 25
+participant 网关 as bgv order 25
 participant "service-activities" as sa order 30
 participant "manager-receive-coupon" as mrc order 40
 participant  "center-receive-coupon"  as  crc order 50
@@ -24,12 +24,10 @@ mrc -> mrc:查询本地缓存
 activate redis
 mrc -> redis:本地缓存无数据降级到远程缓存
 redis --> mrc:返回会场缓存并更新本地缓存
-
 note right
 异步刷新redis缓存
 end note
 deactivate redis
-deactivate localcache
 mrc -> mrc:校验会场是否启用
 mrc --> sa:会场未启用返回失效
 mrc -> mrc:循环遍历子会场
@@ -66,14 +64,11 @@ user -> client:受邀人点击分享链接或扫码
 client -> bgv:进入会场页
 bgv -> sa:进入会场页
 sa -> mrc:查询主会场
-mrc -> localcache:查询主会场信息
-activate localcache
-localcache --> mrc:返回会场信息
-localcache -> redis:本地缓存没数据降级到远程缓存
+mrc -> mrc:查询主会场信息
+mrc -> redis:本地缓存没数据降级到远程缓存
 activate redis
-redis --> localcache:返回会场信息并刷新本地缓存
+redis --> mrc:返回会场信息并刷新本地缓存
 deactivate redis
-deactivate localcache
 mrc -> mrc:校验url token有效性\n解析分享用户id
 mrc -> mm:查询邀请者
 activate mm
@@ -89,7 +84,10 @@ mrc --> sa: 已过组件时间或发起人无奖励返回失效
 mrc -> mrc:是否已助力过
 mrc --> sa:已助力过触发助力弹窗阻断
 mrc -> mrc:校验助力人奖励库存
-mrc -> mrc:校验指路人奖励状态
+mrc -> mc:校验助力人优惠券状态
+activate mc
+mc --> mrc:返回结果
+deactivate mc
 mrc --> sa:返回客人态助力弹窗&静态数据cos地址
 sa --> client:返回客人态助力弹窗&静态数据cos地址
 client -> cos:cos拉群会场静态数据
@@ -109,7 +107,6 @@ participant  "center-receive-coupon"  as  crc order 50
 participant "processor-pms" as pp order 35
 participant "manager-coupon" as mc order 53
 participant "manager-member" as mm order 55
-participant localcache order 60
 participant redis order 70
 participant mysql order 100
 group 助力人发放奖励
@@ -123,14 +120,11 @@ bgv -> sa:助力请求
 activate sa
 sa -> mrc:助力请求
 activate mrc
-mrc -> localcache:查询子会场信息
-activate localcache
-localcache --> mrc:返回会场信息
-localcache -> redis:本地缓存没数据降级到远程缓存
+mrc -> mrc:本地缓存查询子会场信息
+mrc -> redis:本地缓存没数据降级到远程缓存
 activate redis
-redis --> localcache:返回并刷新会场信息
+redis --> mrc:返回并刷新本地缓存
 deactivate redis
-deactivate localcache
 mrc -> mrc:校验会场启用状态
 mrc --> sa:会场未启用返回失效
 mrc -> mrc:校验组件时间
@@ -153,12 +147,36 @@ deactivate redis
 mrc --> sa:扣减失败返回
 mrc -> crc:保存助力记录
 crc --> mrc:保存结果
-mrc ->redis:redis记录发券流水&记录流水号集合&邀请人助力次数+1
+mrc ->redis:redis记录发券流水&记录流水号集合
+activate redis
 redis --> mrc:结果
-mrc -> pp:kafka发券消息
+mrc -> redis:邀请人助力次数+1
+redis --> mrc :返回
+deactivate redis
+mrc -> pp:发券通知
+mrc -> pp:邀请人被助力通知
 deactivate mrc
 end
-group 发券流程
+group 邀请人被助力通知
+pp -> mrc:被助力通知
+mrc -> mrc:校验会场启用状态
+mrc --> sa:会场未启用不发放奖励
+mrc -> mrc:校验组件时间
+mrc --> sa:已过组件时间不发放奖励
+mrc -> redis:从redis校验被助力次数(懒加载)
+activate redis
+redis --> mrc:返回
+deactivate redis
+mrc -> mrc:校验助力次数是否达到奖励要求
+mrc -> crc:校验是否已发放过奖励
+activate crc
+crc --> mrc:返回
+deactivate crc
+
+mrc -> pp:达到奖励发放要求发送发券通知
+
+end
+group 发券通知
 activate pp
 pp -> pp:处理消息
 pp -> pp:db限速
@@ -171,15 +189,19 @@ deactivate redis
 mrc -> crc:发券流水落库
 activate crc
 crc -> mysql:发券流水落库
+activate mysql
 mysql --> crc:结果
+deactivate mysql
 crc -->mrc:结果
 mrc -> mc:发券
 activate mc
 mc --> mrc:发券结果
 deactivate mc
-
+mrc -> redis:邀请人身份设置邀请人奖励弹窗通知
+activate redis
+redis --> mrc:返回
+deactivate redis
+mrc -> pp:发券成功或失败
 end
-
-
 
 @enduml

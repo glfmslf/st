@@ -1,0 +1,54 @@
+@startuml
+title 优惠券套餐券刷新
+
+participant "job-pms" as  jp order 20
+participant "manager-coupon" as mc order 25
+participant "center-coupon" as cc order 30
+participant mysql order 40
+participant redis order 70
+participant localcache as lc order 80
+participant "manager-product" as mp order 90
+activate jp
+jp -> cc:分页查询进行中&&未开始部分商品部分分类券模板
+activate cc
+cc --> jp:返回结果集
+deactivate cc
+activate mp
+jp -> mp:校验是否存在套餐商品和分类
+mp --> jp:返回结果
+deactivate mp
+activate mc
+jp -> mc:删除套餐商品和分类
+mc -> cc:删除套餐商品和分类
+activate cc
+cc -> mysql:删除套餐商品和分类
+activate mysql
+mysql -->cc:返回结果
+deactivate mysql
+cc --> mc:返回结果
+deactivate cc
+mc --> jp:返回结果
+jp -> mc:刷新新版缓存
+mc -> redis:刷新远程缓存
+activate redis
+redis --> mc:返回结果
+deactivate redis
+mc -> lc:刷新本地缓存
+activate lc
+lc --> mc:返回结果
+mc --> jp:返回结果
+deactivate lc
+jp -> cc:刷新老缓存
+activate cc
+cc -> lc:刷新本地缓存
+activate lc
+lc --> cc:返回结果
+deactivate
+cc --> jp:返回结果
+note top
+返回异常日志告警
+end note
+
+
+
+@enduml

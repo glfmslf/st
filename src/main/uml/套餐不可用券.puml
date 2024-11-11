@@ -1,0 +1,43 @@
+@startuml
+title 下单流程
+actor   用户 as  user order 1
+participant  小程序  as  client order 20
+participant 网关 as bgv order 25
+participant "交易系统" as orders order 30
+participant "center-coupon" as cc order 40
+participant "localcache" as lc order 50
+participant redis order 70
+activate user
+user -> client: 选择商品下单
+activate client
+client -> bgv: 选择商品下单
+activate bgv
+bgv -> orders: 下单
+activate orders
+orders -> cc:券优惠计算
+activate cc
+cc -> lc: 券缓存查询
+activate lc
+lc --> cc: 券信息结果
+deactivate lc
+group 套餐逻辑
+cc -> cc: 券可用校验
+cc -> cc: 券优惠计算
+cc -> cc: 商品分摊计算
+note right
+1:下单现金券/折扣券
+/买赠券/换购券/赠饮券
+删除套餐适用，优惠计算，商品分摊逻辑
+2:点单页逻辑过滤套餐商品不参与计算
+end note
+end
+cc --> orders: 优惠信息
+orders --> orders: 生单
+orders --> bgv:完成生单
+deactivate orders
+bgv --> client:完成生单
+deactivate bgv
+client --> user:完成生单
+deactivate client
+
+@enduml
